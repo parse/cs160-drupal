@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Implements an API to handle persistent variables.
+ */
+
+/**
+ * Implements hook_boot().
+ *
+ * The hook is intentionally empty, as it is used only to assure the module is
+ * loaded on early bootstrap time.
+ */
+function vars_boot() {
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function vars_flush_caches() {
+  return array('cache_vars');
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function vars_node_type_delete($info) {
+  global $conf;
+
+  $variables = Vars::loadDefaults('node_type', db_and()->condition('vd.flags', Vars::VARS_NODE_TYPE));
+  if (array_key_exists('dynamic', $variables)) {
+    foreach (array_keys($variables['dynamic']) as $var) {
+      db_delete('variable')
+        ->condition('name', $var . '_' . $info->type)
+        ->execute();
+      unset($conf[$name]);
+      $clear_cache = TRUE;
+    }
+  }
+
+  if (isset($clear_cache)) {
+     cache_clear_all('variables', 'cache_bootstrap');
+  }
+}

@@ -1,0 +1,67 @@
+<?php
+
+include_once('recruiter_job.features.inc');
+
+/**
+ * Implements hook_theme().
+ */
+function recruiter_job_theme() {
+  return array(
+    // Register the template specific for the job per template content type.
+    'node__job_per_template__slim' => array(
+      'render element' => 'elements',
+      'template' => 'node--job_per_template--slim',
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_TEMPLATE().
+ *
+ * Add a theme suggestion job nodes in case 'slim' mode is enabled.
+ *
+ * @see recruiter_common_preprocess_page()
+ */
+function recruiter_job_preprocess_node(&$variables) {
+  if (isset($_GET['render']) && $_GET['render'] == 'slim') {
+    $variables['theme_hook_suggestions'][] = 'node__' . $variables['node']->type . '__slim';
+  }
+}
+
+/**
+ * Defines all job content types.
+ */
+function recruiter_job_content_types() {
+  return array_keys(recruiter_job_node_info());
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function recruiter_job_entity_property_info_alter(&$info) {
+  foreach (recruiter_job_content_types() as $type) {
+    $properties = &$info['node']['bundles'][$type]['properties'];
+    $properties['job_url'] = array(
+      'label' => t('Job URL'),
+      'description' => t('The URL for viewing the job ad.'),
+      'getter callback' => 'recruiter_job_get_url',
+      'type' => 'uri',
+    );
+  }
+}
+
+/**
+ * Returns the URL for viewing a job.
+ */
+function recruiter_job_get_url($node) {
+  if ($node->type == 'job_per_link') {
+    return isset($node->field_job_link[LANGUAGE_NONE][0]['url']) ? drupal_strip_dangerous_protocols($node->field_job_link[LANGUAGE_NONE][0]['url']) : NULL;
+  }
+  elseif ($node->type == 'job_per_file') {
+    if (entity_metadata_wrapper('node', $node)->field_job_file->value()) {
+      return entity_metadata_wrapper('node', $node)->field_job_file->file->url->value();
+    }
+    return NULL;
+  }
+  return url("node/$node->nid", array('query' => array('render' => 'slim'), 'absolute' => TRUE));
+}

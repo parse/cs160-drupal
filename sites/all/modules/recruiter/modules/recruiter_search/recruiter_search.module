@@ -1,0 +1,16 @@
+<?php
+
+include_once('recruiter_search.features.inc');
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function recruiter_search_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Activate the currentsearch block by default for the recruiter_bartik theme.
+  if ($theme == 'recruiter_bartik') {
+    if (!isset($blocks['search_api_facets']['current-search']['bid'])) {
+      $blocks['search_api_facets']['current-search']['status'] = 1;
+      $blocks['search_api_facets']['current-search']['region'] = 'sidebar_first';
+    }
+  }
+}

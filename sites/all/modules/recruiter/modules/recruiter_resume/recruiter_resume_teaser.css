@@ -1,0 +1,42 @@
+.resume-teaser-container {
+  width: 100%;
+}
+
+.resume-teaser-photo {
+  float: right;
+} 
+
+.field-name-field-resume-job-preferences .field-label {
+  display: none;
+}
+
+.field-name-field-resume-job-preferences .field-items .field-label {
+  display: block;
+}
+
+.field-name-field-resume-job-preferences .field-collection-view .entity-field-collection-item {
+  width: 335px;
+}
+
+.field-name-field-resume-job-preferences .field-collection-view .content {
+  width: 335px;
+}
+
+.field-name-field-resume-job-preferences .field-collection-view {
+  margin: 0em 0.2em;
+  padding-top: 0em;
+}
+
+.field-name-field-resume-job-preferences .field-collection-view .field-label {
+  width: 100%;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.field-name-field-resume-job-preferences .field-type-taxonomy-term-reference {
+  margin: 0px;
+}
+
+.field-name-field-resume-job-preferences .field-items {
+  margin-bottom: 0.4em;
+}

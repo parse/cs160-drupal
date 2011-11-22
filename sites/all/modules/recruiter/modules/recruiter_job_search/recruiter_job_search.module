@@ -1,0 +1,24 @@
+<?php
+
+include_once('recruiter_job_search.features.inc');
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function recruiter_job_search_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Activate facets blocks by default for the recruiter_bartik theme.
+  if ($theme == 'recruiter_bartik') {
+    $block_deltas = array(
+      'job_search_field_job_organizatio',
+      'job_search_field_job_region',
+      'job_search_field_job_languages',
+    );
+    foreach ($block_deltas as $key => $delta) {
+      if (!empty($blocks['search_api_facets'][$delta]) && !isset($blocks['search_api_facets'][$delta]['bid'])) {
+        $blocks['search_api_facets'][$delta]['status'] = 1;
+        $blocks['search_api_facets'][$delta]['region'] = 'sidebar_second';
+        $blocks['search_api_facets'][$delta]['weight'] = $key;
+      }
+    }
+  }
+}

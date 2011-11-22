@@ -1,0 +1,84 @@
+<?php
+
+include_once('recruiter_common.features.inc');
+
+/**
+ * Implements hook_init().
+ */
+function recruiter_common_init() {
+  // Add the custom colorbox-behaviour if colorbox is enabled.
+  if (!drupal_installation_attempted() && _colorbox_active()) {
+    drupal_add_js(drupal_get_path('module', 'recruiter_common') . '/colorbox.js');
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * @see overlay_page_alter()
+ * @see template_preprocess_page()
+ */
+function recruiter_common_page_alter(&$page) {
+  // If we are limiting rendering to a subset of page regions, deny access to
+  // all other regions so that they will not be processed.
+  if (isset($_GET['render']) && $_GET['render'] == 'slim') {
+    $skipped_regions = array_diff(element_children($page), array('content', 'help'));
+    foreach ($skipped_regions as $skipped_region) {
+      $page[$skipped_region]['#access'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function recruiter_common_theme() {
+  return array(
+    // Register a default slim page template.
+    'page__slim' => array(
+      'render element' => 'page',
+      'template' => 'page--slim',
+      'path' => drupal_get_path('module', 'recruiter_common'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_TEMPLATE().
+ *
+ * Replace the page template with the slim page template if requested.
+ *
+ * @see recruiter_common_page_alter()
+ * @see recruiter_page_slim.tpl.php
+ */
+function recruiter_common_preprocess_page(&$variables) {
+  if (isset($_GET['render']) && $_GET['render'] == 'slim') {
+    $variables['theme_hook_suggestions'][] = 'page__slim';
+  }
+}
+
+/**
+ * Add body slim class if site is shown in slim mode.
+ */
+function recruiter_common_preprocess_html(&$variables) {
+  if (isset($_GET['render']) && $_GET['render'] == 'slim') {
+    $variables['classes_array'][] = 'slim-mode';
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function recruiter_common_menu() {
+  $items['admin/recruiter'] = array(
+    'title' => 'Recruiter',
+    'description' => 'Administer recruitment content.',
+    'position' => 'right',
+    'weight' => -11,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' =>  '/system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  return $items;
+}

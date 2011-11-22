@@ -1,0 +1,25 @@
+<?php
+
+include_once('recruiter_resume_search.features.inc');
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function recruiter_resume_search_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Activate facets blocks by default for the recruiter_bartik theme.
+  if ($theme == 'recruiter_bartik') {
+    $block_deltas = array(
+      'resume_search_field_resume_xp_fi',
+      'resume_search_field_resume_ski_2',
+      'resume_search_field_resume_ski_3',
+      'resume_search_field_resume_lan_1',
+    );
+    foreach ($block_deltas as $key => $delta) {
+      if (!empty($blocks['search_api_facets'][$delta]) && !isset($blocks['search_api_facets'][$delta]['bid'])) {
+        $blocks['search_api_facets'][$delta]['status'] = 1;
+        $blocks['search_api_facets'][$delta]['region'] = 'sidebar_second';
+        $blocks['search_api_facets'][$delta]['weight'] = $key;
+      }
+    }
+  }
+}

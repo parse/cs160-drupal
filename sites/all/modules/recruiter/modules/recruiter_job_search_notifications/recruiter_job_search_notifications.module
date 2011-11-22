@@ -1,0 +1,26 @@
+<?php
+/**
+ * @file
+ * Code for the recruiter_job_search_notifications feature.
+ */
+
+include_once('recruiter_job_search_notifications.features.inc');
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function recruiter_job_search_notifications_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Activate notification block by default for the recruiter_bartik theme.
+  if ($theme == 'recruiter_bartik') {
+    $module = 'search_api_saved_searches';
+    $delta = 'job_search';
+    if (!empty($blocks[$module][$delta]) && !isset($blocks[$module][$delta]['bid'])) {
+      $blocks[$module][$delta]['status'] = 1;
+      $blocks[$module][$delta]['region'] = 'sidebar_first';
+      $blocks[$module][$delta]['weight'] = -15;
+      $blocks[$module][$delta]['visibility'] = BLOCK_VISIBILITY_LISTED;
+      $blocks[$module][$delta]['pages'] = "search/job\nsearch/job/*";
+    }
+  }
+}
+

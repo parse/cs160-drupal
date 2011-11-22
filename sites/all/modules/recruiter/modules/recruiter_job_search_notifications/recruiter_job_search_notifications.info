@@ -1,0 +1,18 @@
+core = "7.x"
+dependencies[] = "entity"
+dependencies[] = "features"
+dependencies[] = "recruiter_job_search"
+dependencies[] = "search_api_saved_searches"
+description = "Provides search notifications / saved searches for the job search."
+features[search_api_saved_searches_settings][] = "job_search"
+features[user_permission][] = "use search_api_saved_searches"
+name = "recruiter_job_search_notifications"
+package = "Features"
+project = "recruiter_job_search_notifications"
+
+; Information added by drupal.org packaging script on 2011-08-18
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "recruiter"
+datestamp = "1313685419"
+

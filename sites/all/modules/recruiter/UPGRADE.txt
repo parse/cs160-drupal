@@ -1,0 +1,30 @@
+
+Upgrades notes
+---------------
+
+Follow this instructions to upgrade between fully packaged minor version releases
+of the Recruiter distribution, e.g. from 1.0-beta1 to 1.0-beta2.
+
+
+1. As for any upgrade, backup the code and the database and turn on
+   maintenance mode.
+
+2. Replace your codebase (excluding the sites directory) with the contents of
+   the fully-packaged Recruiter release archive.
+
+   Do not *merge* the codebases, as some files might have been relocated!
+
+3. Update your site via update.php.
+
+4. Navigate to the Features module admin page (admin/structur/features). All
+   features should be marked as default if that was the case before upgrading.
+
+   For any features that were overridden, carefully review the changes, e.g.
+   with the help of the diff module (disabled by default). If possible, just
+   remove any customizations and revert the overridden components to the
+   provided defaults.
+
+   The new release might include some new features you may want to enable.
+
+5. If everything went fine, disable the maintenance mode. That's it.
+

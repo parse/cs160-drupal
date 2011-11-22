@@ -1,0 +1,13 @@
+name = Achievements
+description = "Unlock achievements and earn points based on milestones."
+files[] = achievements.pages.inc
+stylesheets[all][] = achievements.css
+configure = admin/config/people/achievements
+core = 7.x
+
+; Information added by drupal.org packaging script on 2011-11-10
+version = "7.x-1.4"
+core = "7.x"
+project = "achievements"
+datestamp = "1320945930"
+

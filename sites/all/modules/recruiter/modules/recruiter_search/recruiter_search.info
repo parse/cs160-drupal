@@ -1,0 +1,19 @@
+core = "7.x"
+dependencies[] = "features"
+dependencies[] = "search_api"
+dependencies[] = "search_api_facets"
+dependencies[] = "search_api_solr"
+dependencies[] = "search_api_views"
+description = "Common components for searching."
+features[search_api_server][] = "solr_server"
+features[user_permission][] = "use search_api_facets"
+name = "recruiter_search"
+package = "Features"
+php = "5.2.4"
+
+; Information added by drupal.org packaging script on 2011-08-18
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "recruiter"
+datestamp = "1313685419"
+

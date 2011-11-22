@@ -1,0 +1,12 @@
+name = Variable API
+description = Implements an API to handle persistent variables.
+core = 7.x
+files[] = vars.classes.inc
+files[] = tests/vars.test
+
+; Information added by drupal.org packaging script on 2011-09-02
+version = "7.x-2.0-alpha7"
+core = "7.x"
+project = "vars"
+datestamp = "1314969777"
+

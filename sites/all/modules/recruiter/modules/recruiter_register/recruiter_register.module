@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Recruiter registration feature.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function recruiter_register_block_info() {
+  $blocks['applicant_info'] = array(
+    'info' => t('Registration information for applicants'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+    'status' => 0,
+    'weight' => 0,
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'user/register'
+  );
+  $blocks['recruiter_info'] = array(
+    'info' => t('Registration information for recruiter'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+    'status' => 0,
+    'weight' => 0,
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'user/register/recruiter'
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function recruiter_register_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Activate the blocks by default for the recruiter_bartik theme.
+  if ($theme == 'recruiter_bartik') {
+    if (!isset($blocks['recruiter_register']['applicant_info']['bid'])) {
+      $blocks['recruiter_register']['applicant_info']['status'] = 1;
+      $blocks['recruiter_register']['applicant_info']['region'] = 'featured';
+    }
+    if (!isset($blocks['recruiter_register']['recruiter_info']['bid'])) {
+      $blocks['recruiter_register']['recruiter_info']['status'] = 1;
+      $blocks['recruiter_register']['recruiter_info']['region'] = 'featured';
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function recruiter_register_block_view($delta) {
+  switch ($delta) {
+    case 'applicant_info':
+      return array(
+        'subject' => t('You are about to sign up as @applicant.', array('@applicant' => t('applicant'))),
+        'content' => array(
+          'body' => array(
+            '#markup' => t('Sign up as @recruiter instead? Click <a href="!url">here</a>!', array('!url' => url('user/register/recruiter'), '@recruiter' => t('recruiter'))),
+          ),
+        ),
+      );
+    case 'recruiter_info':
+      return array(
+        'subject' => t('You are about to sign up as @recruiter.', array('@recruiter' => t('recruiter'))),
+        'content' => array(
+          'body' => array(
+            '#markup' => t('Sign up as @applicant instead? Click <a href="!url">here</a>!', array('!url' => url('user/register'), '@applicant' => t('applicant'))),
+          ),
+        ),
+      );
+  }
+}

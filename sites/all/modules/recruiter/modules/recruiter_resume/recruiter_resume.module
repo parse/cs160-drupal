@@ -1,0 +1,52 @@
+<?php
+
+include_once('recruiter_resume.features.inc');
+
+
+/**
+ * Implements hook_theme().
+ */
+function recruiter_resume_theme() {
+  return array(
+    // Register the template specific for the resume profile.
+    'profile2__resume' => array(
+      'render element' => 'elements',
+      'template' => 'profile2--resume',
+    ),
+    // Register the template specific for the resume profile teaser.
+    'profile2__resume__teaser' => array(
+      'render element' => 'elements',
+      'template' => 'profile2--resume--teaser',
+    ),
+  );
+}
+
+function recruiter_resume_profile2_view($profile, $view_mode, $langcode) {
+  // If resume teaser is shown, include specific css style.
+  if ($profile->type == 'resume' && $view_mode == 'teaser') {
+    drupal_add_css(drupal_get_path('module', 'recruiter_resume') . '/recruiter_resume_teaser.css');
+  }
+}
+
+/**
+ * Implements hook_admin_paths() to enable the overlay on this paths.
+ *
+ * @todo: Fix to enable the overlay without wrongly marking the paths to be
+ * administrative.
+ */
+function recruiter_resume_admin_paths() {
+  return array(
+    'field-collection/*/*/*' => TRUE,
+    'field-collection/*/*/view' => FALSE,
+  );
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function recruiter_resume_menu_alter(&$items) {
+  // Hide the menu tabs from the resume page.
+  $items['resume/%profile2_by_uid/view']['type'] = MENU_CALLBACK;
+  $items['resume/%profile2_by_uid/edit']['type'] = MENU_CALLBACK;
+  $items['resume/%profile2_by_uid/delete']['type'] = MENU_CALLBACK;
+}

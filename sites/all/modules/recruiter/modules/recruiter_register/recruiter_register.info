@@ -1,0 +1,18 @@
+core = "7.x"
+dependencies[] = "recruiter_common"
+dependencies[] = "recruiter_resume"
+dependencies[] = "rules"
+description = "Allow users to register as recruiter or applicant."
+features[rules_config][] = "rules_register_as_applicant"
+features[rules_config][] = "rules_register_as_recruiter"
+name = "recruiter_register"
+package = "Features"
+php = "5.2.4"
+project = "recruiter_register"
+
+; Information added by drupal.org packaging script on 2011-08-18
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "recruiter"
+datestamp = "1313685419"
+
