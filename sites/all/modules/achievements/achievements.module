@@ -42,7 +42,16 @@ function achievements_menu() {
     'title'             => 'Per-achievement leaderboard',
     'type'              => MENU_CALLBACK,
   );
-  $items['user/%user/achievements'] = array(
+//  $items['user/%user/achievements'] = array(
+//    'access arguments'  => array('access achievements'),
+//    'description'       => "View a specific user's leaderboard.",
+//    'file'              => 'achievements.pages.inc',
+//    'page callback'     => 'achievements_user_page',
+//    'page arguments'    => array(1),
+//    'title'             => 'Achievements',
+//    'type'              => MENU_LOCAL_TASK,
+//  );
+  $items['profile-associate/%user/achievements'] = array(
     'access arguments'  => array('access achievements'),
     'description'       => "View a specific user's leaderboard.",
     'file'              => 'achievements.pages.inc',
@@ -619,5 +628,64 @@ function achievements_page_alter(&$page) {
         ->condition('uid', $GLOBALS['user']->uid)->condition('seen', 0)->execute();
     }
   }
+}
+
+/**
+ * Implements hook_achievements_info().
+ */
+function achievements_achievements_info() {
+  $achievements = array(
+    'comment-count-1' => array(
+      'title'       => t('Posted your first comment!'),
+      'description' => t('Keep going!'),
+      'storage'     => 'comment-count',
+      'points'      => 1,
+    ),
+    'comment-count-2' => array(
+      'title'       => t('Posted your 2nd comment!'),
+      'description' => t('Keep going!'),
+      'storage'     => 'comment-count',
+      'points'      => 2,
+    ),
+    'comment-count-3' => array(
+      'title'       => t('Posted 3 comments!'),
+      'description' => t('Keep at it!'),
+      'storage'     => 'comment-count',
+      'points'      => 3,
+    ),
+    'comment-count-4' => array(
+      'title'       => t('Posted 4 comments!'),
+      'description' => t('Getting there!'),
+      'storage'     => 'comment-count',
+      'points'      => 4,
+      'images' => array(
+        'unlocked'  => '/sites/default/files/example1.png',
+        // 'hidden' and 'locked' will use the defaults.
+      ),
+    ),
+
+    // An example of achievement groups: 'article-creation' is the group ID,
+    // "Article creation" is the group title, and all relevant achievements are
+    // placed in an 'achievements' array. The ungrouped comment achievements
+    // above will be automatically pushed into a "Miscellany" group.
+    'article-creation' => array(
+      'title' => t('Article creation'),
+      'achievements' => array(
+        'node-mondays' => array(
+          'title'       => t('Published some content on a Monday'),
+          'description' => t("Go back to bed: it's still the weekend!"),
+          'points'      => 5,
+          //'images' => array(
+            //'unlocked'  => '/sites/default/files/example1.png',
+            //'locked'    => '/sites/default/files/example2.png',
+            //'hidden'    => '/sites/default/files/example3.png',
+            // all default images have been replaced.
+          //),
+        ),
+      ),
+    ),
+  );
+
+  return $achievements;
 }
 
