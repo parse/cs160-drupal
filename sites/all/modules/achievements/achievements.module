@@ -635,52 +635,68 @@ function achievements_page_alter(&$page) {
  */
 function achievements_achievements_info() {
   $achievements = array(
-    'comment-count-1' => array(
-      'title'       => t('Posted your first comment!'),
-      'description' => t('Keep going!'),
-      'storage'     => 'comment-count',
-      'points'      => 1,
-    ),
-    'comment-count-2' => array(
-      'title'       => t('Posted your 2nd comment!'),
-      'description' => t('Keep going!'),
-      'storage'     => 'comment-count',
-      'points'      => 2,
-    ),
-    'comment-count-3' => array(
-      'title'       => t('Posted 3 comments!'),
-      'description' => t('Keep at it!'),
-      'storage'     => 'comment-count',
-      'points'      => 3,
-    ),
-    'comment-count-4' => array(
-      'title'       => t('Posted 4 comments!'),
-      'description' => t('Getting there!'),
-      'storage'     => 'comment-count',
-      'points'      => 4,
-      'images' => array(
-        'unlocked'  => '/sites/default/files/example1.png',
-        // 'hidden' and 'locked' will use the defaults.
+    'bronze-trophies' => array(
+      'title' => t('Bronze'),
+      'achievements' => array(
+        'nRookie' => array(
+          'title'       => t('Rookie'),
+          'description' => t("Obtained first rating"),
+          'points'      => 0,
+        ),
+        'nActiveVolunteer' => array(
+          'title'       => t('Active Volunteer'),
+          'description' => t("Obtained 10 votes in any category"),
+          'points'      => 0,
+        ),
+        'nGreatStart' => array(
+          'title'       => t('Great Start'),
+          'description' => t("Get 5 stars in any category"),
+          'points'      => 0,
+        ),
       ),
     ),
-
-    // An example of achievement groups: 'article-creation' is the group ID,
-    // "Article creation" is the group title, and all relevant achievements are
-    // placed in an 'achievements' array. The ungrouped comment achievements
-    // above will be automatically pushed into a "Miscellany" group.
-    'article-creation' => array(
-      'title' => t('Article creation'),
+    'silver-trophies' => array(
+      'title' => t('Silver'),
       'achievements' => array(
-        'node-mondays' => array(
-          'title'       => t('Published some content on a Monday'),
-          'description' => t("Go back to bed: it's still the weekend!"),
-          'points'      => 5,
-          //'images' => array(
-            //'unlocked'  => '/sites/default/files/example1.png',
-            //'locked'    => '/sites/default/files/example2.png',
-            //'hidden'    => '/sites/default/files/example3.png',
-            // all default images have been replaced.
-          //),
+        'nBusyBee' => array(
+          'title'       => t('Busy Bee'),
+          'description' => t("Obtained 25 votes in any category"),
+          'points'      => 0,
+        ),
+        'nEarlyBird' => array(
+          'title'       => t('Early Bird'),
+          'description' => t("Punctuality average rating of 3.5, at least 10 projects completed"),
+          'points'      => 0,
+        ),
+        'nSuperOrganizer' => array(
+          'title'       => t('Super Organizer'),
+          'description' => t("Organization average rating of 3.5, at least 10 projects completed"),
+          'points'      => 0,
+        ),
+        'nTeamPlayer' => array(
+          'title'       => t('Team Player'),
+          'description' => t("Communication average rating of 3.5, at least 10 projects completed"),
+          'points'      => 0,
+        ),
+        'nHardWorker' => array(
+          'title'       => t('Hard Worker'),
+          'description' => t("Performance average rating of 3.5, at least 10 projects completed"),
+          'points'      => 0,
+        ),
+      ),
+    ),
+    'gold-trophies' => array(
+      'title' => t('Gold'),
+      'achievements' => array(
+        'nMasterVolunteer' => array(
+          'title'       => t('Master Volunteer'),
+          'description' => t("Obtained 50 votes in any category"),
+          'points'      => 0,
+        ),
+        'nPerfectVolunteer' => array(
+          'title'       => t('Perfect Volunteer'),
+          'description' => t("Have average rating of 4.0 in all 4 categories, at least 25 projects completed"),
+          'points'      => 0,
         ),
       ),
     ),
@@ -689,3 +705,72 @@ function achievements_achievements_info() {
   return $achievements;
 }
 
+/**
+ * Implements hook_fivestar_voted($votes, $tag, $entity_id)
+ */
+function achievements_fivestar_voted($votes, $tag, $entity_id) {
+  $result = db_query('SELECT uid FROM profile where pid = :id', array(':id' => $entity_id));
+  $id = $result->fetchColumn();
+  
+  /*** Bronze Trophies ***/
+  
+  // --Rookie
+  if ($votes['count']['value'] == 1) {
+    achievements_unlocked('nRookie', $id);
+  }
+  
+  // -- Active Volunteer
+  if ($votes['count']['value'] == 10) {
+    achievements_unlocked('nActiveVolunteer', $id);
+  }
+  
+  // -- Great Start
+  if ($votes['average']['value'] >= 100) {
+    achievements_unlocked('nGreatStart', $id);
+  }
+  
+  /*** Silver Trophies ***/
+  
+  // -- Busy Bee
+  if ($votes['count']['value'] == 25) {
+    achievements_unlocked('nBusyBee', $id);
+  }
+  
+  if ($votes['count']['value'] >= 10 && $votes['average']['value'] >= 70) {
+    if ($tag == 'punctuality') {
+      // -- Early Bird
+      achievements_unlocked('nEarlyBird', $id);
+    } else if ($tag == 'organization') {
+      // -- Super Organizer
+      achievements_unlocked('nSuperOrganizer', $id);
+    } else if ($tag == 'communication') {
+      // -- Team Player
+      achievements_unlocked('nTeamPlayer', $id);
+    } else if ($tag == 'performance') {
+      // -- Hard Worker
+      achievements_unlocked('nHardWorker', $id);
+    }
+  }
+  
+  /*** Gold Trophies ***/
+  
+  // -- Master Volunteer
+  if ($votes['count']['value'] == 50) {
+    achievements_unlocked('nMasterVolunteer', $id);
+  }
+  
+  // -- Perfect Volunteer
+  if ($votes['count']['value'] >= 25) {
+    $isCriteriaMet = TRUE;
+    $result = db_query("SELECT value FROM votingapi_cache WHERE entity_id = :eid AND function = 'average'", array(':eid' => $entity_id));
+    foreach ($result as $res) {
+      if ($res->value < 80) {
+        $isCriteriaMet = FALSE;
+        break;
+      }
+    }
+    if ($isCriteriaMet) {
+      achievements_unlocked('nPerfectVolunteer', $id);
+    }
+  }
+}
