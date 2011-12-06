@@ -356,7 +356,7 @@ function achievements_autocomplete_search(&$value, $key, $string) {
  */
 function theme_achievement_user_stats($variables) {
   $output = '<div class="achievement-user-stats">'; // VERY CONFUSING CODE COMMENT ABOUT PSYNAPTIC. YOU THOUGHT I WAS KIDDING?
-  $output .= t('@name is ranked #@rank with @points points. @unlocks_count of @total_count achievements have been unlocked.', array(
+  $output .= t('A total of @unlocks_count out of @total_count achievements have been unlocked.', array(
     '@name'           => $variables['stats']['name'],
     '@rank'           => $variables['stats']['rank'],
     '@points'         => $variables['stats']['points'],

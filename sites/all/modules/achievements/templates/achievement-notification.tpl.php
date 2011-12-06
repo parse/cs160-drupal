@@ -22,9 +22,8 @@
   <div class="achievement-image"><?php print render($image); ?></div>
 
   <div class="achievement-points-box">
-    <div class="achievement-points"><?php print $achievement['points']; ?></div>
     <div class="achievement-unlocked-stats">
-      <div class="achievement-unlocked-rank"><?php print render($unlocked_rank); ?></div>
+      <div class="achievement-unlocked-timestamp"><br><?php print render($unlocked_date); ?></div>
     </div>
   </div>
 

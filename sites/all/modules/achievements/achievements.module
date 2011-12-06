@@ -168,29 +168,33 @@ function achievements_template_shared_variables(&$variables) {
       'alt'   => $variables['achievement']['title'],
       'title' => $variables['achievement']['title'],
     ),
-    '#path' => array(
-      'path'    => 'achievements/leaderboard/' . $variables['achievement']['id'],
-      'options' => array('html' => TRUE),
-    ),
+    //'#path' => array(
+    //  'path'    => 'achievements/leaderboard/' . $variables['achievement']['id'],
+    //  'options' => array('html' => TRUE),
+    //),
   );
 
   $variables['achievement_title'] = array(
-    '#type'   => 'link',
-    '#title'  => $variables['achievement']['title'],
-    '#href'   => 'achievements/leaderboard/' . $variables['achievement']['id'],
+    //'#type'   => 'link',
+    //'#title'  => $variables['achievement']['title'],
+    '#markup'  => $variables['achievement']['title'],
+    //'#href'   => 'achievements/leaderboard/' . $variables['achievement']['id'],
   );
   $variables['achievement_points'] = array(
-    '#markup' => t('@points points', array('@points' => $variables['achievement']['points'])),
+    //'#markup' => t('@points points', array('@points' => $variables['achievement']['points'])),
+    
+    '#markup' => isset($variables['unlock']['timestamp']) ? '' : 'Locked',
   );
   $variables['unlocked_date'] = array(
     '#markup' => isset($variables['unlock']['timestamp'])
-      ? format_date($variables['unlock']['timestamp'], 'custom', 'Y/m/d')
+      ? 'Unlocked on ' . format_date($variables['unlock']['timestamp'], 'custom', 'm/d/Y')
       : '',
   );
   $variables['unlocked_rank'] = array(
-    '#markup' => isset($variables['unlock']['rank'])
-      ? t('Rank #@rank', array('@rank' => $variables['unlock']['rank']))
-      : '',
+    //'#markup' => isset($variables['unlock']['rank'])
+    //  ? t('Rank #@rank', array('@rank' => $variables['unlock']['rank']))
+    //  : '',
+    '#markup' => '',
   );
 }
 

@@ -40,12 +40,12 @@
 }
 
 .achievement-points-box .achievement-points {
-  font-size: 28px;
+  font-size: 16px;
   font-weight: bold;
   margin-top: 2px;
 }
 
-.achievement-points-box .achievement-unlocked-stats {
+.achievement-points-box .achievement-unlocked-stats{
   font-size: 11px;
 }
 
