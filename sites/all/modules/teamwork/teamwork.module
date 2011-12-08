@@ -1,0 +1,45 @@
+<?php
+class TeamWork {
+  public static function getUserApplications() {
+    global $user;
+
+    //SQL query to grab needed infomation from the database
+    $query = 'SELECT node.title, node.nid, webform_submissions.submitted FROM node, webform_submissions, webform_submitted_data WHERE webform_submissions.uid = :uid AND webform_submissions.sid = webform_submitted_data.sid AND webform_submitted_data.cid=4 AND webform_submitted_data.data = node.nid AND node.status = 1 GROUP BY  webform_submissions.uid, webform_submitted_data.data';
+
+    $record = db_query($query, array(':uid' => $user->uid));
+    ?>
+    <table><thead><td>Date</td><td>Job applied to</td></thead>
+    <?php
+    foreach($record as $rec) : ?>
+      <tr>
+        <td><?php echo format_date($rec->submitted, 'small'); ?></td>
+        <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+        </tr>
+    <?php
+    endforeach;
+    echo '</table>';
+  }
+  
+  public static function getClientApplications() {
+    global $user;
+
+    //SQL query to grab needed infomation from the database
+    $query ='SELECT field_data_field_firstname.field_firstname_value as firstname, field_data_field_lastname.field_lastname_value as lastname, webform_submissions.uid as submitter_uid, users.name as name, node.title as title, webform_submitted_data.data as data, webform_submissions.submitted as submit_time FROM webform_submissions, webform_submitted_data, field_data_field_firstname, field_data_field_lastname, users, node, profile WHERE node.uid = :uid AND webform_submissions.sid = webform_submitted_data.sid
+    AND webform_submitted_data.cid = :cid AND webform_submissions.uid = users.uid AND webform_submitted_data.data = node.nid AND webform_submissions.uid=profile.uid AND profile.type = :type AND profile.pid = field_data_field_firstname.entity_id AND profile.pid = field_data_field_lastname.entity_id GROUP BY submitter_uid, data';
+
+    $record = db_query($query, array(':cid' => '4', ':uid' => $user->uid, ':type' => 'associate'));
+    ?>
+    <table><thead><td>Applicant</td><td>Resume</td><td>Job applied to</td><td>Date</td></thead>
+    <?php
+    foreach($record as $rec) : ?>
+    <tr>
+    <td><a href="./?q=profile-associate/<?php echo $rec->submitter_uid; ?>"><?php echo $rec->firstname . ' ' . $rec->lastname; ?></a> </td>
+    <td><a href="../employer-resume-view/<?php echo $rec->submitter_uid; ?>">View</a></td>
+    <td><a href="./?q=node/<?php echo $rec->data; ?>"><?php echo $rec->title; ?></a></td>
+    <td><?php echo format_date($rec->submit_time, 'small'); ?></td>
+    </tr>
+    <?php
+    endforeach;
+    echo '</table>';
+  }
+}
