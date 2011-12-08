@@ -178,11 +178,11 @@
 #navigation-primary > ul > li > h2 > a,
 #navigation-primary > ul > li > a{ /* links of the first level */
 	text-transform: uppercase;
-	color: #ffffff;
+	color: darkblue;
 	font-weight: bold;
 	text-decoration: none;
 	/*background: #156aa3;*/
-	background: #C0C0C0;
+	background: white;
 }
 
 #navigation-primary > ul > li > a.active,

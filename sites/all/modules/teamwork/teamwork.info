@@ -1,0 +1,8 @@
+; $Id$
+ 
+name = teamwork
+description = Extends functionality for volunteer site
+package = Teamwork Modules
+core = 7.x
+ 
+files[] = teamwork.module

@@ -176,7 +176,7 @@ body,html{
 -------------------------------------------------------------- */
 
 body.marinelli{
-	background: #17293d url(../img/backgrounds/body.gif);
+	background: lightblue;
 }
 	
 #topBar,#topBarLink,#topBarLink a{ /* top toggle bar */
@@ -208,7 +208,7 @@ body.marinelli{
 
 #pageBorder{ /* border of the whole site */ 
 	/*border:10px solid #054b81;*/
-	border:10px solid #C0C0C0;
+	border:10px solid white;
 }
 	
 #pageBorder.noborder{ /* when we don't have the advertise region */ 
