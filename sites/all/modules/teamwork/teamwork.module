@@ -10,7 +10,25 @@ class TeamWork {
     global $user;
 
     //SQL query to grab needed infomation from the database
-    $query = 'SELECT node.title, node.nid, webform_submissions.submitted FROM node, webform_submissions, webform_submitted_data WHERE webform_submissions.uid = :uid AND webform_submissions.sid = webform_submitted_data.sid AND webform_submitted_data.cid=4 AND webform_submitted_data.data = node.nid AND node.status = 1 GROUP BY  webform_submissions.uid, webform_submitted_data.data';
+    $query = '
+    SELECT 
+      node.title, 
+      node.nid, 
+      webform_submissions.submitted,
+      webform_submissions.sid
+    FROM 
+      node, 
+      webform_submissions, 
+      webform_submitted_data 
+    WHERE 
+      webform_submissions.uid = :uid AND 
+      webform_submissions.sid = webform_submitted_data.sid AND 
+      webform_submitted_data.cid=4 AND 
+      webform_submitted_data.data = node.nid AND 
+      node.status = 1 
+    GROUP BY  
+      webform_submissions.uid, 
+      webform_submitted_data.data';
 
     $record = db_query($query, array(':uid' => $user->uid));
     ?>
@@ -18,12 +36,14 @@ class TeamWork {
       <thead>
         <td>Date</td>
         <td>Job applied to</td>
+        <td>&nbsp;</td>
       </thead>
       
-    <?php foreach($record as $rec) : ?>
+    <?php foreach ($record as $rec) : ?>
       <tr>
         <td><?php echo format_date($rec->submitted, 'small'); ?></td>
         <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+        <td><a href="/node/20/submission/<?php echo $rec->sid; ?>/delete?destination=node/30">Delete</a></td>
         </tr>
     <?php
     endforeach;
@@ -47,7 +67,7 @@ class TeamWork {
         <td>Date</td>
       </thead>
       
-    <?php foreach($record as $rec) { 
+    <?php foreach ($record as $rec) { 
       if (teamwork_job_taken($rec->data))
         continue;
       ?>
@@ -56,30 +76,98 @@ class TeamWork {
         <td><a href="../employer-resume-view/<?php echo $rec->submitter_uid; ?>">View</a></td>
         <td><a href="./?q=node/<?php echo $rec->data; ?>"><?php echo $rec->title; ?></a></td>
         <td><?php echo format_date($rec->submit_time, 'small'); ?></td>
-        <td><a href="<?php echo $base_url; ?>/teamwork/delegate/<?php echo $rec->submitter_uid; ?>/<?php echo $rec->data; ?>">Assign job</a></td>
+        <td><a href="<?php echo $base_url; ?>/teamwork/delegate/<?php echo $rec->submitter_uid; ?>/<?php echo $rec->data; ?>">Assign project</a></td>
       </tr>
     <?php
     }
+    echo '</table>';
+  }
+  
+  public static function replyToProject() {
+    // Get current user data
+    global $user;
+    global $node;
+
+    $firstname = "";
+    $lastname = "";
+    $userID = $user->uid;
+    $projectID = arg(1);
+
+    $query = 'SELECT * FROM {profile} LEFT OUTER JOIN {field_data_field_firstname} ON profile.pid = field_data_field_firstname.entity_id LEFT OUTER JOIN {field_data_field_lastname} ON profile.pid = field_data_field_lastname.entity_id WHERE profile.uid = :uid AND profile.type = :type';
+
+    $app_name = db_query($query, array(':uid'=> $user->uid, ':type'=> 'associate'));
+    foreach($app_name as $names)
+    {
+        $firstname = $names->field_firstname_value;
+        $lastname = $names->field_lastname_value;
+    }
+
+    //echo $firstname . ',' . $lastname . ',' . $userID . ',' . $projectID;
+    
+    if ( !teamwork_job_taken_by_user($projectID, $userID) ) : ?>
+      <form action=".?q=node/20" method="post">
+      <input type="hidden" name="appID" value="<?php echo $userID; ?>">
+      <input type="hidden" name="firstname" value="<?php echo $firstname; ?>">
+      <input type="hidden" name="lastname" value="<?php echo $lastname; ?>">
+      <input type="hidden" name="projectID" value="<?php echo $projectID ?>">
+      <input type="submit" value="Apply Now">
+      </form>
+      <?php
+    endif;
+  }
+  
+  public static function userProjects() {
+    global $base_url, $user;
+    
+    //SQL query to grab needed infomation from the database
+    $query = '
+    SELECT 
+      node.title, 
+      users.name
+    FROM
+      node,
+      users,
+      users_projects
+    WHERE
+      node.nid = users_projects.node_id AND
+      users_projects.user_id = :uid AND
+      node.uid = users.uid
+      ';
+    $record = db_query($query, array(':uid' => $user->uid ));
+    ?>
+    <table>
+      <thead>
+        <td>Client</td>
+        <td>Job title</td>
+      </thead>
+      
+    <?php foreach ($record as $rec) : ?>
+      <tr>
+        <td><?php echo $rec->name; ?></td>
+        <td><?php echo $rec->title; ?></td>
+      </tr>
+    <?php
+    endforeach;
     echo '</table>';
   }
 }
 
 function teamwork_job_taken($node_id) {
   $exists = db_query('SELECT 1 FROM users_projects WHERE node_id = :nid', array(':nid' => $node_id) )->fetchField();
-  
+
   if ($exists == 1)
     return true;
   else
     return false;
 }
 
-function teamwork_menu() {
-  $items['teamwork/delegate'] = array(
-    'page callback' => 'teamwork_delegate_job',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK
-  );
-  return $items;
+function teamwork_job_taken_by_user($node_id, $user_id) {
+  $exists = db_query('SELECT 1 FROM users_projects WHERE node_id = :nid AND user_id = :uid', array(':nid' => $node_id, ':uid' => $user_id) )->fetchField();
+
+  if ($exists == 1)
+    return true;
+  else
+    return false;
 }
 
 function teamwork_delegate_job($user_id = 0, $node_id = 0) {
@@ -91,7 +179,7 @@ function teamwork_delegate_job($user_id = 0, $node_id = 0) {
   if (teamwork_job_taken($node_id)) {
     die("Project already assigned");
   }
-  
+    
   $nid = db_insert('users_projects') // Table name no longer needs {}
   ->fields(array(
     'user_id' => $user_id,
@@ -101,4 +189,17 @@ function teamwork_delegate_job($user_id = 0, $node_id = 0) {
 
   header("location: ". $_SERVER['HTTP_REFERER']);
   die();
+}
+
+
+// Register our route to assigning projects
+function teamwork_menu() {
+  $items['teamwork/delegate'] = array(
+    'page callback' => 'teamwork_delegate_job',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  
+  
+  return $items;
 }
