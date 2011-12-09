@@ -39,14 +39,17 @@ class TeamWork {
         <td>&nbsp;</td>
       </thead>
       
-    <?php foreach ($record as $rec) : ?>
+    <?php foreach ($record as $rec) { 
+      if (teamwork_job_taken_by_user($rec->nid, $user->uid))
+        continue;
+      ?>
       <tr>
         <td><?php echo format_date($rec->submitted, 'small'); ?></td>
         <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
-        <td><a href="/node/20/submission/<?php echo $rec->sid; ?>/delete?destination=node/30">Delete</a></td>
+        <td><a href="/node/20/submission/<?php echo $rec->sid; ?>/delete?destination=my-applications">Delete</a></td>
         </tr>
     <?php
-    endforeach;
+    }
     echo '</table>';
   }
   
@@ -77,6 +80,47 @@ class TeamWork {
         <td><a href="./?q=node/<?php echo $rec->data; ?>"><?php echo $rec->title; ?></a></td>
         <td><?php echo format_date($rec->submit_time, 'small'); ?></td>
         <td><a href="<?php echo $base_url; ?>/teamwork/delegate/<?php echo $rec->submitter_uid; ?>/<?php echo $rec->data; ?>">Assign project</a></td>
+      </tr>
+    <?php
+    }
+    echo '</table>';
+  }
+  
+  public static function getClientOngoingProjects() {
+    global $base_url, $user;
+
+    //SQL query to grab needed infomation from the database
+    $query = '
+    SELECT 
+      users.name,
+      users.uid,
+      node.title,
+      node.nid
+    FROM
+      users_projects,
+      users,
+      node
+    WHERE
+      users_projects.user_id = users.uid AND
+      users_projects.node_id = node.nid AND
+      node.uid = :uid AND
+      users_projects.status = 0
+    ';
+    $record = db_query($query, array(':uid' => $user->uid));
+    ?>
+    <table>
+      <thead>
+        <td>Applicant</td>
+        <td>Job applied to</td>
+        <td>&nbsp;</td>
+      </thead>
+      
+    <?php foreach ($record as $rec) { 
+      ?>
+      <tr>
+        <td><a href="./?q=profile-associate/<?php echo $rec->uid; ?>"><?php echo $rec->name; ?></a> </td>
+        <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+        <td><a href="#">Mark project as finished</a></td>
       </tr>
     <?php
     }
@@ -123,6 +167,7 @@ class TeamWork {
     $query = '
     SELECT 
       node.title, 
+      node.nid as id,
       users.name
     FROM
       node,
@@ -144,7 +189,7 @@ class TeamWork {
     <?php foreach ($record as $rec) : ?>
       <tr>
         <td><?php echo $rec->name; ?></td>
-        <td><?php echo $rec->title; ?></td>
+        <td><a href="<?php echo $base_url; ?>/node/<?php $rec->id; ?>"><?php echo $rec->title; ?></a></td>
       </tr>
     <?php
     endforeach;
