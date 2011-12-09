@@ -95,7 +95,8 @@ class TeamWork {
       users.name,
       users.uid,
       node.title,
-      node.nid
+      node.nid,
+      users_projects.id
     FROM
       users_projects,
       users,
@@ -120,7 +121,7 @@ class TeamWork {
       <tr>
         <td><a href="./?q=profile-associate/<?php echo $rec->uid; ?>"><?php echo $rec->name; ?></a> </td>
         <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
-        <td><a href="#">Mark project as finished</a></td>
+        <td><a href="<?php echo $base_url; ?>/teamwork/mark/<?php echo $rec->id; ?>">Mark project as finished</a></td>
       </tr>
     <?php
     }
@@ -236,6 +237,24 @@ function teamwork_delegate_job($user_id = 0, $node_id = 0) {
   die();
 }
 
+function teamwork_mark($id) {
+  global $base_url;
+  
+  if ($id == 0)
+    die("Not enough arguments");
+    
+  $num_updated = db_update('users_projects') // Table name no longer needs {}
+    ->fields(array(
+      'status' => 1,
+    ))
+    ->condition('id', $id)
+    ->execute();
+
+  header("location: ". $_SERVER['HTTP_REFERER']);
+  die();
+}
+
+
 
 // Register our route to assigning projects
 function teamwork_menu() {
@@ -245,6 +264,21 @@ function teamwork_menu() {
     'type' => MENU_CALLBACK
   );
   
+  $items['teamwork/mark'] = array(
+    'page callback' => 'teamwork_mark',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['profile-associate/%user/project-history'] = array(
+    'access arguments'  => array('access content'),
+    'description'       => "View a specific user's history.",
+    'file'              => 'teamwork_project_history.pages.inc',
+    'page callback'     => 'history_user_page',
+    'page arguments'    => array(1),
+    'title'             => 'Project history',
+    'type'              => MENU_LOCAL_TASK,
+  );
   
   return $items;
 }
