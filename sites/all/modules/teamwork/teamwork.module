@@ -476,19 +476,46 @@ function teamwork_approve_user($user_id) {
  */
 function teamwork_profile_ratings($userid) {
   global $base_url;
-  $result = db_query('SELECT pid FROM profile WHERE uid = :uid', array(':uid' => $userid));
-  $id = $result->fetchColumn();
   $img = $base_url . '/' . drupal_get_path('module', 'teamwork') . '/stars-';
 
   // Get votes
+  $result = db_query('SELECT id FROM users_projects WHERE user_id = :uid', array(':uid' => $userid));
+  $vote1 = array(0, 0);
+  $vote2 = array(0, 0);
+  $vote3 = array(0, 0);
+  $vote4 = array(0, 0);
+  
+  foreach($result as $res) {
+    $votes = fivestar_get_votes('profile2', $res->id, 'performance');
+    if (isset($votes['average']['value'])) {
+      $vote1[0] += $votes['average']['value'];
+      $vote1[1]++;
+    }
+    $votes = fivestar_get_votes('profile2', $res->id, 'communication');
+    if (isset($votes['average']['value'])) {
+      $vote2[0] += $votes['average']['value'];
+      $vote2[1]++;
+    }
+    $votes = fivestar_get_votes('profile2', $res->id, 'punctuality');
+    if (isset($votes['average']['value'])) {
+      $vote3[0] += $votes['average']['value'];
+      $vote3[1]++;
+    }
+    $votes = fivestar_get_votes('profile2', $res->id, 'organization');
+    if (isset($votes['average']['value'])) {
+      $vote4[0] += $votes['average']['value'];
+      $vote4[1]++;
+    }
+  }
+
   echo '<table><thead><td><b>PERFORMANCE</b></td><td><b>COMMUNICATION</b></td>';
   echo '<td><b>PUNCTUALITY</b></td><td><b>ORGANIZATION</b></td></thead><thead>';
   
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'performance'), $img, true);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'communication'), $img, true);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'punctuality'), $img, true);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'organization'), $img, true);
-  
+  teamwork_print_stars($vote1[0], $vote1[1], $img, true);
+  teamwork_print_stars($vote2[0], $vote2[1], $img, true);
+  teamwork_print_stars($vote3[0], $vote3[1], $img, true);
+  teamwork_print_stars($vote4[0], $vote4[1], $img, true);
+
   echo '</thead></table>';
 } 
 
@@ -496,14 +523,12 @@ function teamwork_profile_ratings($userid) {
  * Display fixed star ratings
  * @author Phoeun Phan
  */
-function teamwork_print_stars($votes, $img, $showAvg = false) {
-
-  $avg = isset($votes['average']['values']) ? $votes['average']['value']/20 : 0;
-  $count = isset($votes['count']['values']) ? $votes['count']['value'] : 0;
+function teamwork_print_stars($total, $count, $img, $showAvg = false) {
+  $avg = $total > 0 ? ($total/$count)/20 : 0;
   $stars = floor($avg);
   echo '<td><img src="' . $img . $stars .'.gif"/>';
   if ($showAvg) {
-    echo '<br>Average: ' . $avg . ' (' . $count. ' vote';
+    echo '<br>Average: ' . round($avg,1) . ' (' . $count. ' vote';
     echo $count == 1 ? ')' : 's)';
   }
   echo '</td>';
@@ -533,7 +558,64 @@ function teamwork_print_rating_stars($entity_type, $entity_id, $tag) {
  * @author Phoeun Phan
  */
 function teamwork_profile_history($userid) {
-  echo 'some stuff';
+  global $base_url;
+  $img = $base_url . '/' . drupal_get_path('module', 'teamwork') . '/stars-';
+  $vote1 = 0;
+  $vote2 = 0;
+  $vote3 = 0;
+  $vote4 = 0;
+  
+  //SQL query to grab needed infomation from the database
+  $query = '
+  SELECT 
+    users.name,
+    users.uid,
+    node.title,
+    node.nid,
+    users_projects.id
+  FROM
+    users_projects,
+    users,
+    node
+  WHERE
+    users_projects.user_id = users.uid AND
+    users_projects.node_id = node.nid AND
+    users_projects.user_id = :uid AND
+    users_projects.status = 1
+  ';
+  $record = db_query($query, array(':uid' => $userid));
+  ?>
+  <table>
+    <thead>
+      <td>Project Completed</td>
+      <td>PERFORMANCE</td>
+      <td>COMMUNICATION</td>
+      <td>PUNCTUALITY</td>
+      <td>ORGANIZATION</td>	
+    </thead>
+
+  <?php foreach ($record as $rec) { 
+      $votes = fivestar_get_votes('profile2', $rec->id, 'performance');
+      $vote1 = isset($votes['average']['value']) ? $votes['average']['value'] : 0;
+      $votes = fivestar_get_votes('profile2', $rec->id, 'communication');
+      $vote2 = isset($votes['average']['value']) ? $votes['average']['value'] : 0;
+      $votes = fivestar_get_votes('profile2', $rec->id, 'punctuality');
+      $vote3 = isset($votes['average']['value']) ? $votes['average']['value'] : 0;
+      $votes = fivestar_get_votes('profile2', $rec->id, 'organization');
+      $vote4 = isset($votes['average']['value']) ? $votes['average']['value'] : 0;
+    ?>
+    <tr>
+      <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+      <?php
+        teamwork_print_stars($vote1, 1, $img);
+        teamwork_print_stars($vote2, 1, $img);
+        teamwork_print_stars($vote3, 1, $img);
+        teamwork_print_stars($vote4, 1, $img); 
+      ?>
+    </tr>
+  <?php
+  }
+  echo '</table>';
 }
 
 /*

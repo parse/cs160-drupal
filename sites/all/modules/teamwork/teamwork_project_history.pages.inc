@@ -7,7 +7,7 @@
  *   The user object this request applies against.
  */
 function history_user_page($account) {
-  drupal_set_title(t('Project History for @name, @id', array('@name' => $account->name, '@id' => $account->uid)));
+  drupal_set_title(t('Project History for @name', array('@name' => $account->name, '@id' => $account->uid)));
   
   $build = array();
   return $build;
