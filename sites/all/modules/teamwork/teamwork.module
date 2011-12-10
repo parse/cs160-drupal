@@ -224,7 +224,59 @@ class TeamWork {
     }
     echo '</table>';
   }
-  
+
+  /*
+   * Get completed projects for a client
+   * @author Anders Hassis, Phoeun Phan
+   */
+  public static function getClientCompletedProjects() {
+    global $base_url, $user;
+
+    //SQL query to grab needed infomation from the database
+    $query = '
+    SELECT 
+      users.name,
+      users.uid,
+      node.title,
+      node.nid,
+      users_projects.id
+    FROM
+      users_projects,
+      users,
+      node
+    WHERE
+      users_projects.user_id = users.uid AND
+      users_projects.node_id = node.nid AND
+      node.uid = :uid AND
+      users_projects.status = 1
+    ';
+    $record = db_query($query, array(':uid' => $user->uid));
+    ?>
+    <table>
+      <thead>
+        <td>Applicant</td>
+        <td>Job applied to</td>
+        <td>PERFORMANCE</td>
+        <td>COMMUNICATION</td>
+        <td>PUNCTUALITY</td>
+        <td>ORGANIZATION</td>	
+      </thead>
+
+    <?php foreach ($record as $rec) { 
+      ?>
+      <tr>
+        <td><a href="./?q=profile-associate/<?php echo $rec->uid; ?>"><?php echo $rec->name; ?></a> </td>
+        <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+        <td><?php teamwork_print_rating_stars('profile2', $rec->id, 'performance'); ?></td>
+        <td><?php teamwork_print_rating_stars('profile2', $rec->id, 'communication'); ?></td>
+        <td><?php teamwork_print_rating_stars('profile2', $rec->id, 'punctuality'); ?></td>
+        <td><?php teamwork_print_rating_stars('profile2', $rec->id, 'organization'); ?></td>
+      </tr>
+    <?php
+    }
+    echo '</table>';
+  }
+
   /*
    * Block controlling the apply-button for projects
    * @author Anders Hassis
@@ -428,29 +480,52 @@ function teamwork_profile_ratings($userid) {
   $id = $result->fetchColumn();
   $img = $base_url . '/' . drupal_get_path('module', 'teamwork') . '/stars-';
 
-  echo '<table><tr><td><b>PERFORMANCE</b></td><td><b>COMMUNICATION</b></td>';
-  echo '<td><b>PUNCTUALITY</b></td><td><b>ORGANIZATION</b></td></tr><tr>';
+  // Get votes
+  echo '<table><thead><td><b>PERFORMANCE</b></td><td><b>COMMUNICATION</b></td>';
+  echo '<td><b>PUNCTUALITY</b></td><td><b>ORGANIZATION</b></td></thead><thead>';
   
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'performance'), $img);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'communication'), $img);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'punctuality'), $img);
-  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'organization'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'performance'), $img, true);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'communication'), $img, true);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'punctuality'), $img, true);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'organization'), $img, true);
   
-  echo '</tr></table>';
+  echo '</thead></table>';
 } 
+
+/*
+ * Display fixed star ratings
+ * @author Phoeun Phan
+ */
+function teamwork_print_stars($votes, $img, $showAvg = false) {
+
+  $avg = isset($votes['average']['values']) ? $votes['average']['value']/20 : 0;
+  $count = isset($votes['count']['values']) ? $votes['count']['value'] : 0;
+  $stars = floor($avg);
+  echo '<td><img src="' . $img . $stars .'.gif"/>';
+  if ($showAvg) {
+    echo '<br>Average: ' . $avg . ' (' . $count. ' vote';
+    echo $count == 1 ? ')' : 's)';
+  }
+  echo '</td>';
+}
 
 /*
  * Display star ratings
  * @author Phoeun Phan
  */
-function teamwork_print_stars($votes, $img) {
-  $avg = $votes['average']['value']/20;
-  $count = $votes['count']['value'];
-  $stars = floor($avg);
-  echo '<td><img src="' . $img . $stars .'.gif"/><br>';
-  echo 'Average: ' . $avg . ' (' . $count. ' vote';
-  echo $count == 1 ? '' : 's';
-  echo ')</td>';
+function teamwork_print_rating_stars($entity_type, $entity_id, $tag) {
+  $votes = fivestar_get_votes($entity_type, $entity_id, $tag);
+  $settings = array(
+    'content_type' => $entity_type,
+    'content_id' => $entity_id,
+    'stars' => 5,
+    'autosubmit' => TRUE,
+    'allow_clear' => FALSE,
+    'text' => 'none',
+    'tag' => $tag,
+    'style' => 'user',
+  );
+  print render(drupal_get_form('fivestar_custom_widget', $votes, $settings));
 }
 
 /*

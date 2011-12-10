@@ -43,7 +43,7 @@
 
   <div class="content"<?php print $content_attributes; ?>>
     <table class="type">
-    <tr>
+    <thead>
     <td width="200px">
       <?php print render($content['field_photo']); ?>
 
@@ -75,7 +75,7 @@
       <p style="margin : 10px;">
       <?php print render($content['field_fave_course']); ?>
     </td>
-    </tr>
+    </thead>
     </table>
   </div>
 </div>
