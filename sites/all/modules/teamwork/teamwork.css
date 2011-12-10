@@ -1,0 +1,15 @@
+
+.teamwork-table .teamwork-thead{
+  background: #C3D9FF;
+
+}
+.teamwork-table .teamwork-thead td {
+  font-weight: bold;
+}
+.teamwork-table .odd {
+  background: #F5F5F5;
+}
+
+.teamwork-table .even {
+  background: #E2E2E2;
+}
