@@ -155,9 +155,9 @@ class TeamWork {
       users.name,
       users.uid
     FROM
-      users,
+      users
     WHERE
-      user.status = 0
+      users.status = 0
     ';
     $record = db_query($query);
     ?>
@@ -172,7 +172,7 @@ class TeamWork {
       ?>
       <tr>
         <td><a href="./?q=profile-client/<?php echo $rec->uid; ?>"><?php echo $rec->name; ?></a> </td>
-        <td><a href="<?php echo $base_url; ?>/teamwork/approve_user/<?php echo $rec->nid; ?>">Approve User</a></td>
+        <td><a href="<?php echo $base_url; ?>/teamwork/approve_user/<?php echo $rec->uid; ?>">Approve User</a></td>
       </tr>
     <?php
     }
