@@ -6,6 +6,11 @@
  */
  
 class TeamWork {
+  
+  /*
+   * Get a users applications
+   * @author Anders Hassis
+   */
   public static function getUserApplications() {
     global $user;
 
@@ -53,6 +58,10 @@ class TeamWork {
     echo '</table>';
   }
   
+  /*
+   * Get applicants for a client
+   * @author Anders Hassis
+   */
   public static function getClientApplications() {
     global $base_url, $user;
 
@@ -86,6 +95,57 @@ class TeamWork {
     echo '</table>';
   }
   
+  /*
+   * Get pending projects for admin
+   * @author Anders Hassis
+   */
+  public static function getPendingProjects() {
+    global $base_url, $user;
+
+    //SQL query to grab needed infomation from the database
+    $query = '
+    SELECT 
+      users.name,
+      users.uid,
+      node.created,
+      node.title,
+      node.nid
+    FROM
+      users,
+      node
+    WHERE
+      type = :type AND
+      node.uid = users.uid AND
+      node.status = 0
+    ';
+    $record = db_query($query, array(':type' => 'project_template'));
+    ?>
+    List of projects that hasnt been approved yet.
+    <table>
+      <thead>
+        <td>Job</td>
+        <td>User</td>
+        <td>Created</td>
+        <td>&nbsp;</td>
+      </thead>
+      
+    <?php foreach ($record as $rec) { 
+      ?>
+      <tr>
+        <td><a href="./?q=node/<?php echo $rec->nid; ?>"><?php echo $rec->title; ?></a></td>
+        <td><a href="./?q=profile-client/<?php echo $rec->uid; ?>"><?php echo $rec->name; ?></a> </td>
+        <td><?php echo format_date($rec->created, 'small'); ?></td>
+        <td><a href="<?php echo $base_url; ?>/teamwork/approve_project/<?php echo $rec->nid; ?>">Approve Project</a></td>
+      </tr>
+    <?php
+    }
+    echo '</table>';
+  }
+  
+  /*
+   * Get ongoing projects for a client
+   * @author Anders Hassis
+   */
   public static function getClientOngoingProjects() {
     global $base_url, $user;
 
@@ -115,7 +175,7 @@ class TeamWork {
         <td>Job applied to</td>
         <td>&nbsp;</td>
       </thead>
-      
+
     <?php foreach ($record as $rec) { 
       ?>
       <tr>
@@ -128,6 +188,10 @@ class TeamWork {
     echo '</table>';
   }
   
+  /*
+   * Block controlling the apply-button for projects
+   * @author Anders Hassis
+   */
   public static function replyToProject() {
     // Get current user data
     global $user;
@@ -161,6 +225,10 @@ class TeamWork {
     endif;
   }
   
+  /*
+   * Get projects assigned to a user
+   * @author Anders Hassis
+   */
   public static function userProjects() {
     global $base_url, $user;
     
@@ -198,6 +266,10 @@ class TeamWork {
   }
 }
 
+/*
+ * Helper function for determining if a project is taken or not
+ * @author Anders Hassis
+ */
 function teamwork_job_taken($node_id) {
   $exists = db_query('SELECT 1 FROM users_projects WHERE node_id = :nid', array(':nid' => $node_id) )->fetchField();
 
@@ -207,6 +279,11 @@ function teamwork_job_taken($node_id) {
     return false;
 }
 
+/*
+ * Helper function for determining if a project is taken or 
+ * not by a specified user
+ * @author Anders Hassis
+ */
 function teamwork_job_taken_by_user($node_id, $user_id) {
   $exists = db_query('SELECT 1 FROM users_projects WHERE node_id = :nid AND user_id = :uid', array(':nid' => $node_id, ':uid' => $user_id) )->fetchField();
 
@@ -216,6 +293,10 @@ function teamwork_job_taken_by_user($node_id, $user_id) {
     return false;
 }
 
+/*
+ * Delegate a job to a user
+ * @author Anders Hassis
+ */
 function teamwork_delegate_job($user_id = 0, $node_id = 0) {
   global $base_url;
   
@@ -237,6 +318,10 @@ function teamwork_delegate_job($user_id = 0, $node_id = 0) {
   die();
 }
 
+/*
+ * Mark a project as completed
+ * @author Anders Hassis
+ */
 function teamwork_mark($id) {
   global $base_url;
   
@@ -254,9 +339,95 @@ function teamwork_mark($id) {
   die();
 }
 
+/*
+ * Approve a project making it visible
+ * @author Anders Hassis
+ */
+function teamwork_approve_project($node_id) {
+  global $base_url;
+  
+  if ($node_id == 0)
+    die("Not enough arguments");
+    
+  $num_updated = db_update('node') // Table name no longer needs {}
+    ->fields(array(
+      'status' => 1,
+    ))
+    ->condition('nid', $node_id)
+    ->execute();
 
+  header("location: ". $_SERVER['HTTP_REFERER']);
+  die();
+}
 
-// Register our route to assigning projects
+/*
+ * Approve a user awaiting reviewal
+ * @author Anders Hassis
+ */
+function teamwork_approve_user($user_id) {
+  global $base_url;
+  
+  if ($user_id == 0)
+    die("Not enough arguments");
+    
+  $num_updated = db_update('users') // Table name no longer needs {}
+    ->fields(array(
+      'status' => 1,
+    ))
+    ->condition('uid', $user_id)
+    ->execute();
+
+  header("location: ". $_SERVER['HTTP_REFERER']);
+  die();
+}
+
+/*
+ * Show ratings on profile page
+ * @author Phoeun Phan
+ */
+function teamwork_profile_ratings($userid) {
+  global $base_url;
+  $result = db_query('SELECT pid FROM profile WHERE uid = :uid', array(':uid' => $userid));
+  $id = $result->fetchColumn();
+  $img = $base_url . '/' . drupal_get_path('module', 'teamwork') . '/stars-';
+
+  echo '<table><tr><td><b>PERFORMANCE</b></td><td><b>COMMUNICATION</b></td>';
+  echo '<td><b>PUNCTUALITY</b></td><td><b>ORGANIZATION</b></td></tr><tr>';
+  
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'performance'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'communication'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'punctuality'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'organization'), $img);
+  
+  echo '</tr></table>';
+} 
+
+/*
+ * Display star ratings
+ * @author Phoeun Phan
+ */
+function teamwork_print_stars($votes, $img) {
+  $avg = $votes['average']['value']/20;
+  $count = $votes['count']['value'];
+  $stars = floor($avg);
+  echo '<td><img src="' . $img . $stars .'.gif"/><br>';
+  echo 'Average: ' . $avg . ' (' . $count. ' vote';
+  echo $count == 1 ? '' : 's';
+  echo ')</td>';
+}
+
+/*
+ * Show history content on history tab
+ * @author Phoeun Phan
+ */
+function teamwork_profile_history($userid) {
+  echo 'some stuff';
+}
+
+/*
+ * Register routes for internal usage
+ * @author Anders Hassis
+ */
 function teamwork_menu() {
   $items['teamwork/delegate'] = array(
     'page callback' => 'teamwork_delegate_job',
@@ -266,6 +437,18 @@ function teamwork_menu() {
   
   $items['teamwork/mark'] = array(
     'page callback' => 'teamwork_mark',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['teamwork/approve_project'] = array(
+    'page callback' => 'teamwork_approve_project',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['teamwork/approve_user'] = array(
+    'page callback' => 'teamwork_approve_user',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
