@@ -187,7 +187,7 @@ function achievements_template_shared_variables(&$variables) {
   );
   $variables['unlocked_date'] = array(
     '#markup' => isset($variables['unlock']['timestamp'])
-      ? 'Unlocked on ' . format_date($variables['unlock']['timestamp'], 'custom', 'm/d/Y')
+      ? 'Unlocked on ' . format_date($variables['unlock']['timestamp'], 'custom', 'M d, Y')
       : '',
   );
   $variables['unlocked_rank'] = array(
@@ -713,18 +713,19 @@ function achievements_achievements_info() {
  * Implements hook_fivestar_voted($votes, $tag, $entity_id)
  */
 function achievements_fivestar_voted($votes, $tag, $entity_id) {
-  $result = db_query('SELECT uid FROM profile where pid = :id', array(':id' => $entity_id));
+  $result = db_query('SELECT user_id FROM users_projects where id = :id', array(':id' => $entity_id));
   $id = $result->fetchColumn();
+  $rating = teamwork_get_votes($id);
   
   /*** Bronze Trophies ***/
   
   // --Rookie
-  if ($votes['count']['value'] == 1) {
+  if ($rating[$tag]['count'] == 1) {
     achievements_unlocked('nRookie', $id);
   }
   
   // -- Active Volunteer
-  if ($votes['count']['value'] == 10) {
+  if ($rating[$tag]['count'] == 10) {
     achievements_unlocked('nActiveVolunteer', $id);
   }
   
@@ -736,11 +737,11 @@ function achievements_fivestar_voted($votes, $tag, $entity_id) {
   /*** Silver Trophies ***/
   
   // -- Busy Bee
-  if ($votes['count']['value'] == 25) {
+  if ($rating[$tag]['count'] == 25) {
     achievements_unlocked('nBusyBee', $id);
   }
   
-  if ($votes['count']['value'] >= 10 && $votes['average']['value'] >= 70) {
+  if ($rating[$tag]['count'] >= 10 && $rating[$tag]['average'] >= 70) {
     if ($tag == 'punctuality') {
       // -- Early Bird
       achievements_unlocked('nEarlyBird', $id);
@@ -759,16 +760,17 @@ function achievements_fivestar_voted($votes, $tag, $entity_id) {
   /*** Gold Trophies ***/
   
   // -- Master Volunteer
-  if ($votes['count']['value'] == 50) {
+  if ($rating[$tag]['count'] == 50) {
     achievements_unlocked('nMasterVolunteer', $id);
   }
   
   // -- Perfect Volunteer
-  if ($votes['count']['value'] >= 25) {
+  if ($rating[$tag]['count'] >= 25) {
     $isCriteriaMet = TRUE;
-    $result = db_query("SELECT value FROM votingapi_cache WHERE entity_id = :eid AND function = 'average'", array(':eid' => $entity_id));
-    foreach ($result as $res) {
-      if ($res->value < 80) {
+    $labels = array('performance', 'communication', 'punctuality', 'organization');
+    
+    foreach($labels as $label) {
+      if ($rating[$label]['average'] < 80) {
         $isCriteriaMet = FALSE;
         break;
       }
