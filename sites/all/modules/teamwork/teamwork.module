@@ -282,3 +282,37 @@ function teamwork_menu() {
   
   return $items;
 }
+
+// Show ratings on profile page
+function teamwork_profile_ratings($userid) {
+  global $base_url;
+  $result = db_query('SELECT pid FROM profile WHERE uid = :uid', array(':uid' => $userid));
+  $id = $result->fetchColumn();
+  $img = $base_url . '/' . drupal_get_path('module', 'teamwork') . '/stars-';
+
+  echo '<table><tr><td><b>PERFORMANCE</b></td><td><b>COMMUNICATION</b></td>';
+  echo '<td><b>PUNCTUALITY</b></td><td><b>ORGANIZATION</b></td></tr><tr>';
+  
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'performance'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'communication'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'punctuality'), $img);
+  teamwork_print_stars(fivestar_get_votes('profile2', $id, 'organization'), $img);
+  
+  echo '</tr></table>';
+} 
+
+// Display star ratings
+function teamwork_print_stars($votes, $img) {
+  $avg = $votes['average']['value']/20;
+  $count = $votes['count']['value'];
+  $stars = floor($avg);
+  echo '<td><img src="' . $img . $stars .'.gif"/><br>';
+  echo 'Average: ' . $avg . ' (' . $count. ' vote';
+  echo $count == 1 ? '' : 's';
+  echo ')</td>';
+}
+
+// Show history content on history tab
+function teamwork_profile_history($userid) {
+  echo 'some stuff';
+}

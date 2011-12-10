@@ -49,17 +49,6 @@
 
     </td>
     <td>
-      <?php print render($content['field_rating_1']); ?>
-      <p style="margin : 10px;">
-      <?php print render($content['field_rating_2']); ?>
-      <p style="margin : 10px;">
-      <?php print render($content['field_rating_3']); ?>
-      <p style="margin : 10px;">
-      <?php print render($content['field_rating_4']); ?>
-    </td>
-    </tr>
-    <tr>
-    <td>
       <?php print render($content['field_firstname']); ?>
       <p style="margin : 10px;">
       <?php print render($content['field_lastname']); ?>
@@ -86,6 +75,7 @@
       <p style="margin : 10px;">
       <?php print render($content['field_fave_course']); ?>
     </td>
+    </tr>
     </table>
   </div>
 </div>
