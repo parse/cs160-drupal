@@ -420,6 +420,7 @@ function teamwork_mark($id) {
   $num_updated = db_update('users_projects') // Table name no longer needs {}
     ->fields(array(
       'status' => 1,
+      'status_date' => time()
     ))
     ->condition('id', $id)
     ->execute();
