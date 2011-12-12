@@ -22,7 +22,8 @@ class TeamWork {
       node, 
       users_projects
     WHERE 
-      users_projects.node_id = node.nid';
+      users_projects.node_id = node.nid AND
+      users_projects.status = 1';
     $record = db_query($query);
     
     // Init variables
@@ -37,7 +38,7 @@ class TeamWork {
     
     $total_average = $stats['avg'] / $stats['total'];
     ?>
-    Time in average spent on projects before it's marked as completed: <br />
+    Time in average spent on <strong>projects</strong> before it's marked as completed: <br />
     <strong><?php echo floor($total_average / 3600); ?> hours</strong><br />
     <strong><?php echo floor($total_average / (3600*24)); ?> days</strong>
   
