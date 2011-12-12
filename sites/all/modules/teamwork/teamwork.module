@@ -433,14 +433,15 @@ function teamwork_delegate_job($user_id = 0, $node_id = 0) {
   if (teamwork_job_taken($node_id)) {
     die("Project already assigned");
   }
-    
+  
   $nid = db_insert('users_projects') // Table name no longer needs {}
   ->fields(array(
     'user_id' => $user_id,
-    'node_id' => $node_id
+    'node_id' => $node_id,
+    'status' => 0,
+    'status_date' => 0
   ))
   ->execute();
-
   header("location: ". $_SERVER['HTTP_REFERER']);
   die();
 }
