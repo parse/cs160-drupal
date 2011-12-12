@@ -439,17 +439,9 @@ function teamwork_approve_project($node_id) {
     die("Not enough arguments");
     
   $node = node_load($node_id);
-  $node->status = 0;
+  $node->status = 1;
   node_save($node);
   
-  /*
-  $num_updated = db_update('node') // Table name no longer needs {}
-    ->fields(array(
-      'status' => 1,
-    ))
-    ->condition('nid', $node_id)
-    ->execute();
-*/
   header("location: ". $_SERVER['HTTP_REFERER']);
   die();
 }
