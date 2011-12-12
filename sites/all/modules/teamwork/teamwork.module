@@ -8,6 +8,43 @@
 class TeamWork {
   
   /*
+   * Get statistic for user
+   * @author Anders Hassis
+   */
+  public static function getAdminStats() {
+    $query = '
+    SELECT 
+      node.created,
+      node.title,
+      users_projects.status_date,
+      users_projects.status_date-node.created as timespent
+    FROM 
+      node, 
+      users_projects
+    WHERE 
+      users_projects.node_id = node.nid';
+    $record = db_query($query);
+    
+    // Init variables
+    $stats = array();
+    $stats['avg'] = 0;
+    $stats['total'] = 0;
+    
+    foreach ($record as $rec) { 
+      $stats['avg'] += $rec->timespent;
+      $stats['total']++;
+    }
+    
+    $total_average = $stats['avg'] / $stats['total'];
+    ?>
+    Time in average spent on projects before it's marked as completed: <br />
+    <strong><?php echo floor($total_average / 3600); ?> hours</strong><br />
+    <strong><?php echo floor($total_average / (3600*24)); ?> days</strong>
+  
+    <?php
+  }
+  
+  /*
    * Get a users applications
    * @author Anders Hassis
    */
