@@ -72,7 +72,7 @@ body,html{
 	margin-bottom:10px;
 }
 
-#branding pre { margin: 0px; }
+#branding #cslogo { float:right; }
 #topUtility{
 	position:absolute;
 	top:20px;
