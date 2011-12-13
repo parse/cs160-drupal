@@ -32,9 +32,8 @@
       <div id="branding">
 
         <?php if($logo): ?>
-          <div id="logo-container">
-            <?php print $imagelogo; ?>
-          </div>
+<a id="sjsulogo" class="active" title="Back to SJSU" href="http://sjsu.edu"><img alt="marinelli" src="http://160fall2011sec1group1.cs-sjsu.org/sites/default/files/sjsu-logo.png" typeof="foaf:Image" id="logoSJSU" /></a> 
+<a id="cslogo" class="active" title="Back to CS" href="http://www.cs.sjsu.edu"><img alt="marinelli" src="http://160fall2011sec1group1.cs-sjsu.org/sites/all/themes/marinelli/img/cslogotype.png" typeof="foaf:Image" id="logoCS" /></a>
         <?php endif; ?>
 
         <?php if($site_name || $siteslogan ): ?>
